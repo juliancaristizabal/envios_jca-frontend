@@ -1,0 +1,15 @@
+{
+  "name": "frontend",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "start": "concurrently -n auth,dashboard,shell -c cyan,green,blue \"npm run start --workspace=packages/auth\" \"npm run start --workspace=packages/dashboard\" \"npm run start --workspace=packages/shell\"",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
