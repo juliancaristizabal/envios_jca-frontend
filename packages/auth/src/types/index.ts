@@ -2,6 +2,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  role: 'user' | 'admin';
   createdAt: string;
 }
 
@@ -24,6 +25,20 @@ export interface LoginResponse {
   };
 }
 
+export interface AdminLoginResponse {
+  message: string;
+  data: {
+    token: string;
+    admin: User;
+  };
+}
+
+export interface UnifiedLoginResponse {
+  token: string;
+  user: User;
+  role: 'user' | 'admin';
+}
+
 export interface RegisterResponse {
   message: string;
   data: User;
@@ -35,7 +50,7 @@ export interface ApiValidationError {
 }
 
 export interface AuthAppProps {
-  onLoginSuccess: (token: string, user: User) => void;
+  onLoginSuccess: (token: string, user: User, role: 'user' | 'admin') => void;
   onRegisterSuccess: () => void;
   defaultView?: 'login' | 'register';
 }
