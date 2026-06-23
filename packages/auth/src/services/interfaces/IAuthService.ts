@@ -1,4 +1,11 @@
-import type { LoginCredentials, LoginResponse, RegisterCredentials, RegisterResponse } from '../../types';
+import type {
+  LoginCredentials,
+  LoginResponse,
+  AdminLoginResponse,
+  UnifiedLoginResponse,
+  RegisterCredentials,
+  RegisterResponse,
+} from '../../types';
 
 /**
  * Contract for authentication operations.
@@ -7,5 +14,7 @@ import type { LoginCredentials, LoginResponse, RegisterCredentials, RegisterResp
  */
 export interface IAuthService {
   login(credentials: LoginCredentials): Promise<LoginResponse>;
+  adminLogin(credentials: LoginCredentials): Promise<AdminLoginResponse>;
+  loginAny(credentials: LoginCredentials): Promise<UnifiedLoginResponse>;
   register(credentials: RegisterCredentials): Promise<RegisterResponse>;
 }
