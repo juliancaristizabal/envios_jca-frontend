@@ -1,12 +1,21 @@
 import { Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { selectIsAuthenticated } from '../store/slices/authSlice';
+import { selectIsAuthenticated, selectRole } from '../store/slices/authSlice';
 
 interface ProtectedRouteProps {
   children: React.ReactElement;
+  requiredRole?: 'user' | 'admin';
 }
 
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+export default function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
   const isAuthenticated = useSelector(selectIsAuthenticated);
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  const role = useSelector(selectRole);
+
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+
+  if (requiredRole && role !== requiredRole) {
+    return <Navigate to={role === 'admin' ? '/admin' : '/dashboard'} replace />;
+  }
+
+  return children;
 }

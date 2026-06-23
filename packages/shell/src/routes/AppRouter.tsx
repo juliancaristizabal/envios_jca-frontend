@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setCredentials, logout, selectIsAuthenticated, selectUser } from '../store/slices/authSlice';
+import { setCredentials, logout, selectIsAuthenticated, selectUser, selectRole } from '../store/slices/authSlice';
 import AuthApp from '../remotes/AuthApp';
 import DashboardApp from '../remotes/DashboardApp';
 import ProtectedRoute from './ProtectedRoute';
@@ -12,10 +12,11 @@ export default function AppRouter() {
   const navigate = useNavigate();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const user = useSelector(selectUser);
+  const role = useSelector(selectRole);
 
-  const handleLoginSuccess = (token: string, user: User) => {
-    dispatch(setCredentials({ token, user }));
-    navigate('/dashboard');
+  const handleLoginSuccess = (token: string, user: User, role: 'user' | 'admin') => {
+    dispatch(setCredentials({ token, user, role }));
+    navigate(role === 'admin' ? '/admin' : '/dashboard');
   };
 
   const handleRegisterSuccess = () => {
@@ -27,15 +28,18 @@ export default function AppRouter() {
     navigate('/login');
   };
 
+  const homeRedirect = !isAuthenticated ? '/login' : role === 'admin' ? '/admin' : '/dashboard';
+  const authRedirect = role === 'admin' ? '/admin' : '/dashboard';
+
   return (
     <Routes>
-      <Route path="/" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />} />
+      <Route path="/" element={<Navigate to={homeRedirect} replace />} />
 
       <Route
         path="/login"
         element={
           isAuthenticated ? (
-            <Navigate to="/dashboard" replace />
+            <Navigate to={authRedirect} replace />
           ) : (
             <AuthApp
               key="login"
@@ -51,7 +55,7 @@ export default function AppRouter() {
         path="/register"
         element={
           isAuthenticated ? (
-            <Navigate to="/dashboard" replace />
+            <Navigate to={authRedirect} replace />
           ) : (
             <AuthApp
               key="register"
@@ -66,8 +70,17 @@ export default function AppRouter() {
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute>
-            <DashboardApp user={user} onLogout={handleLogout} />
+          <ProtectedRoute requiredRole="user">
+            <DashboardApp user={user} onLogout={handleLogout} role="user" />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <DashboardApp user={user} onLogout={handleLogout} role="admin" />
           </ProtectedRoute>
         }
       />

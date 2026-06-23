@@ -1,5 +1,6 @@
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import DashboardPage from './pages/DashboardPage';
+import AdminPage from './pages/AdminPage';
 import type { DashboardAppProps } from './types';
 
 const theme = createTheme({
@@ -9,11 +10,14 @@ const theme = createTheme({
   },
 });
 
-export default function DashboardApp({ user, onLogout }: DashboardAppProps) {
+export default function DashboardApp({ user, onLogout, role }: DashboardAppProps) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <DashboardPage user={user} onLogout={onLogout} />
+      {role === 'admin'
+        ? <AdminPage user={user} onLogout={onLogout} />
+        : <DashboardPage user={user} onLogout={onLogout} />
+      }
     </ThemeProvider>
   );
 }
