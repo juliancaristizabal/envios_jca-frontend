@@ -15,7 +15,7 @@ import type { User } from '../types';
 
 interface LoginFormProps {
   authService: IAuthService;
-  onSuccess: (token: string, user: User) => void;
+  onSuccess: (token: string, user: User, role: 'user' | 'admin') => void;
   onSwitchToRegister: () => void;
 }
 
@@ -57,12 +57,13 @@ export default function LoginForm({ authService, onSuccess, onSwitchToRegister }
 
     setLoading(true);
     try {
-      const response = await authService.login({ email, password });
-      onSuccess(response.data.token, response.data.user);
+      const { token, user, role } = await authService.loginAny({ email, password });
+      onSuccess(token, user, role);
     } catch (err: unknown) {
       const msg =
-        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
-        'Error al iniciar sesión. Inténtalo de nuevo.';
+        (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.error ??
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Credenciales incorrectas. Inténtalo de nuevo.';
       setServerError(msg);
     } finally {
       setLoading(false);

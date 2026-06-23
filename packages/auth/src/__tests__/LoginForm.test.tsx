@@ -3,14 +3,16 @@ import userEvent from '@testing-library/user-event';
 import LoginForm from '../components/LoginForm';
 import type { IAuthService } from '../services/interfaces/IAuthService';
 
-const mockUser = { id: 1, name: 'Juan', email: 'juan@test.com', createdAt: '2024-01-01' };
+const mockUser = { id: 1, name: 'Juan', email: 'juan@test.com', role: 'user' as const, createdAt: '2024-01-01' };
 
 function buildMockService(overrides: Partial<IAuthService> = {}): IAuthService {
   return {
     login: jest.fn().mockResolvedValue({ message: 'ok', data: { token: 'tok', user: mockUser } }),
+    adminLogin: jest.fn(),
+    loginAny: jest.fn().mockResolvedValue({ token: 'tok', user: mockUser, role: 'user' }),
     register: jest.fn(),
     ...overrides,
-  };
+  } as IAuthService;
 }
 
 describe('LoginForm', () => {
@@ -68,7 +70,7 @@ describe('LoginForm', () => {
     expect(await screen.findByText('La contraseña es requerida')).toBeInTheDocument();
   });
 
-  it('calls authService.login with correct credentials', async () => {
+  it('calls authService.loginAny with correct credentials', async () => {
     const user = userEvent.setup();
     const mockService = buildMockService();
     render(
@@ -79,14 +81,14 @@ describe('LoginForm', () => {
     await user.click(screen.getByTestId('submit-button'));
 
     await waitFor(() => {
-      expect(mockService.login).toHaveBeenCalledWith({
+      expect(mockService.loginAny).toHaveBeenCalledWith({
         email: 'juan@test.com',
         password: 'password123',
       });
     });
   });
 
-  it('calls onSuccess with token and user on successful login', async () => {
+  it('calls onSuccess con token, user y role en login exitoso', async () => {
     const user = userEvent.setup();
     const onSuccess = jest.fn();
     render(
@@ -97,14 +99,14 @@ describe('LoginForm', () => {
     await user.click(screen.getByTestId('submit-button'));
 
     await waitFor(() => {
-      expect(onSuccess).toHaveBeenCalledWith('tok', mockUser);
+      expect(onSuccess).toHaveBeenCalledWith('tok', mockUser, 'user');
     });
   });
 
   it('shows server error message on failed login', async () => {
     const user = userEvent.setup();
     const failingService = buildMockService({
-      login: jest.fn().mockRejectedValue({
+      loginAny: jest.fn().mockRejectedValue({
         response: { data: { error: 'Credenciales inválidas' } },
       }),
     });

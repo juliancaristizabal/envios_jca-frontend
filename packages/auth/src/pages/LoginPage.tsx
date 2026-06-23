@@ -5,7 +5,7 @@ import type { User } from '../types';
 
 interface LoginPageProps {
   authService: IAuthService;
-  onLoginSuccess: (token: string, user: User) => void;
+  onLoginSuccess: (token: string, user: User, role: 'user' | 'admin') => void;
   onSwitchToRegister: () => void;
 }
 

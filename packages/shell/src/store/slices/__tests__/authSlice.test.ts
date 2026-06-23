@@ -1,10 +1,11 @@
 import authReducer, { setCredentials, logout } from '../authSlice';
 import type { AuthState } from '../../../types';
 
-const mockUser = { id: 1, name: 'Juan', email: 'juan@test.com', createdAt: '2024-01-01' };
+const mockUser = { id: 1, name: 'Juan', email: 'juan@test.com', role: 'user' as const, createdAt: '2024-01-01' };
+const mockAdmin = { id: 2, name: 'Admin', email: 'admin@test.com', role: 'admin' as const, createdAt: '2024-01-01' };
 const mockToken = 'eyJhbGciOiJIUzI1NiJ9.test.signature';
 
-const emptyState: AuthState = { user: null, token: null, isAuthenticated: false };
+const emptyState: AuthState = { user: null, token: null, role: null, isAuthenticated: false };
 
 describe('authSlice', () => {
   beforeEach(() => {
@@ -16,22 +17,30 @@ describe('authSlice', () => {
     expect(state.isAuthenticated).toBe(false);
     expect(state.user).toBeNull();
     expect(state.token).toBeNull();
+    expect(state.role).toBeNull();
   });
 
-  it('setCredentials sets user, token and marks authenticated', () => {
-    const state = authReducer(emptyState, setCredentials({ token: mockToken, user: mockUser }));
+  it('setCredentials sets user, token, role y marca autenticado (usuario)', () => {
+    const state = authReducer(emptyState, setCredentials({ token: mockToken, user: mockUser, role: 'user' }));
     expect(state.isAuthenticated).toBe(true);
     expect(state.token).toBe(mockToken);
     expect(state.user).toEqual(mockUser);
+    expect(state.role).toBe('user');
+  });
+
+  it('setCredentials almacena role admin correctamente', () => {
+    const state = authReducer(emptyState, setCredentials({ token: mockToken, user: mockAdmin, role: 'admin' }));
+    expect(state.role).toBe('admin');
+    expect(state.isAuthenticated).toBe(true);
   });
 
   it('setCredentials persists token to localStorage', () => {
-    authReducer(emptyState, setCredentials({ token: mockToken, user: mockUser }));
+    authReducer(emptyState, setCredentials({ token: mockToken, user: mockUser, role: 'user' }));
     expect(localStorage.getItem('jca_token')).toBe(mockToken);
   });
 
   it('logout clears state and localStorage', () => {
-    const authenticated: AuthState = { user: mockUser, token: mockToken, isAuthenticated: true };
+    const authenticated: AuthState = { user: mockUser, token: mockToken, role: 'user', isAuthenticated: true };
     localStorage.setItem('jca_token', mockToken);
     localStorage.setItem('jca_user', JSON.stringify(mockUser));
 
@@ -40,6 +49,7 @@ describe('authSlice', () => {
     expect(state.isAuthenticated).toBe(false);
     expect(state.user).toBeNull();
     expect(state.token).toBeNull();
+    expect(state.role).toBeNull();
     expect(localStorage.getItem('jca_token')).toBeNull();
     expect(localStorage.getItem('jca_user')).toBeNull();
   });
