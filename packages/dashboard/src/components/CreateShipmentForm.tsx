@@ -9,12 +9,12 @@ import {
   Select,
   MenuItem,
   Alert,
-  CircularProgress,
   Typography,
   Divider,
   InputAdornment,
 } from '@mui/material';
 import { shipmentService } from '../services/ShipmentService';
+import ConfirmShipmentDialog from './ConfirmShipmentDialog';
 import type { CreateShipmentPayload, ProductType } from '../types/shipment';
 
 interface CreateShipmentFormProps {
@@ -82,11 +82,12 @@ export default function CreateShipmentForm({ token, onSuccess }: CreateShipmentF
   const [errors, setErrors] = useState<FormErrors>({});
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pendingPayload, setPendingPayload] = useState<CreateShipmentPayload | null>(null);
 
   const set = (key: keyof FormFields) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setFields((prev) => ({ ...prev, [key]: e.target.value }));
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setServerError('');
 
@@ -97,7 +98,7 @@ export default function CreateShipmentForm({ token, onSuccess }: CreateShipmentF
     }
     setErrors({});
 
-    const payload: CreateShipmentPayload = {
+    setPendingPayload({
       weight:      Number(fields.weight),
       width:       Number(fields.width),
       height:      Number(fields.height),
@@ -107,14 +108,19 @@ export default function CreateShipmentForm({ token, onSuccess }: CreateShipmentF
       destCity:    fields.destCity.trim(),
       destCountry: fields.destCountry.trim(),
       destZip:     fields.destZip.trim(),
-    };
+    });
+  };
 
+  const handleConfirm = async () => {
+    if (!pendingPayload) return;
     setLoading(true);
     try {
-      await shipmentService.createShipment(token, payload);
+      await shipmentService.createShipment(token, pendingPayload);
       setFields(INITIAL);
+      setPendingPayload(null);
       onSuccess();
     } catch {
+      setPendingPayload(null);
       setServerError('No se pudo crear el envío. Verifica los datos e inténtalo de nuevo.');
     } finally {
       setLoading(false);
@@ -122,6 +128,7 @@ export default function CreateShipmentForm({ token, onSuccess }: CreateShipmentF
   };
 
   return (
+    <>
     <Box component="form" onSubmit={handleSubmit} noValidate>
       {serverError && <Alert severity="error" sx={{ mb: 3 }}>{serverError}</Alert>}
 
@@ -193,10 +200,18 @@ export default function CreateShipmentForm({ token, onSuccess }: CreateShipmentF
         </Grid>
       </Grid>
 
-      <Button type="submit" variant="contained" size="large" fullWidth
-        disabled={loading} sx={{ height: 48 }}>
-        {loading ? <CircularProgress size={24} color="inherit" /> : 'Crear envío'}
+      <Button type="submit" variant="contained" size="large" fullWidth sx={{ height: 48 }}>
+        Revisar envío
       </Button>
     </Box>
+
+    <ConfirmShipmentDialog
+      open={pendingPayload !== null}
+      payload={pendingPayload}
+      loading={loading}
+      onConfirm={handleConfirm}
+      onCancel={() => setPendingPayload(null)}
+    />
+  </>
   );
 }
