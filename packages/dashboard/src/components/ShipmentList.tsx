@@ -26,7 +26,7 @@ interface ShipmentListProps {
 }
 
 const STATUS_CONFIG: Record<ShipmentStatus, { label: string; color: 'warning' | 'info' | 'primary' | 'success' | 'error' }> = {
-  pending:    { label: 'Pendiente',   color: 'warning' },
+  pending:    { label: 'En espera',   color: 'warning' },
   assigned:   { label: 'Asignado',    color: 'info' },
   in_transit: { label: 'En tránsito', color: 'primary' },
   delivered:  { label: 'Entregado',   color: 'success' },
