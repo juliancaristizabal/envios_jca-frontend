@@ -15,7 +15,7 @@ export default function DashboardApp({ user, token, onLogout, role }: DashboardA
     <ThemeProvider theme={theme}>
       <CssBaseline />
       {role === 'admin'
-        ? <AdminPage user={user} onLogout={onLogout} />
+        ? <AdminPage user={user} token={token} onLogout={onLogout} />
         : <DashboardPage user={user} token={token} onLogout={onLogout} />
       }
     </ThemeProvider>
