@@ -8,6 +8,7 @@ export interface User {
 
 export interface DashboardAppProps {
   user: User | null;
+  token: string | null;
   onLogout: () => void;
   role: 'user' | 'admin';
 }

@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setCredentials, logout, selectIsAuthenticated, selectUser, selectRole } from '../store/slices/authSlice';
+import { setCredentials, logout, selectIsAuthenticated, selectUser, selectRole, selectToken } from '../store/slices/authSlice';
 import AuthApp from '../remotes/AuthApp';
 import DashboardApp from '../remotes/DashboardApp';
 import ProtectedRoute from './ProtectedRoute';
@@ -13,6 +13,7 @@ export default function AppRouter() {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const user = useSelector(selectUser);
   const role = useSelector(selectRole);
+  const token = useSelector(selectToken);
 
   const handleLoginSuccess = (token: string, user: User, role: 'user' | 'admin') => {
     dispatch(setCredentials({ token, user, role }));
@@ -71,7 +72,7 @@ export default function AppRouter() {
         path="/dashboard"
         element={
           <ProtectedRoute requiredRole="user">
-            <DashboardApp user={user} onLogout={handleLogout} role="user" />
+            <DashboardApp user={user} token={token} onLogout={handleLogout} role="user" />
           </ProtectedRoute>
         }
       />
@@ -80,7 +81,7 @@ export default function AppRouter() {
         path="/admin"
         element={
           <ProtectedRoute requiredRole="admin">
-            <DashboardApp user={user} onLogout={handleLogout} role="admin" />
+            <DashboardApp user={user} token={token} onLogout={handleLogout} role="admin" />
           </ProtectedRoute>
         }
       />

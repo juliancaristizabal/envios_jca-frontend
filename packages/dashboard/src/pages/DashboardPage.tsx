@@ -21,6 +21,7 @@ import type { User } from '../types';
 
 interface DashboardPageProps {
   user: User | null;
+  token: string | null;
   onLogout: () => void;
 }
 
@@ -32,7 +33,7 @@ function formatDate(iso: string): string {
   });
 }
 
-export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
+export default function DashboardPage({ user, token, onLogout }: DashboardPageProps) {
   if (!user) return null;
 
   const initials = user.name

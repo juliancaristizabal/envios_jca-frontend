@@ -10,13 +10,13 @@ const theme = createTheme({
   },
 });
 
-export default function DashboardApp({ user, onLogout, role }: DashboardAppProps) {
+export default function DashboardApp({ user, token, onLogout, role }: DashboardAppProps) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       {role === 'admin'
         ? <AdminPage user={user} onLogout={onLogout} />
-        : <DashboardPage user={user} onLogout={onLogout} />
+        : <DashboardPage user={user} token={token} onLogout={onLogout} />
       }
     </ThemeProvider>
   );
