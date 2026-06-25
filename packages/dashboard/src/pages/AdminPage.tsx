@@ -21,8 +21,10 @@ import {
   Logout,
   LocalShipping,
   Dashboard,
+  DirectionsCar,
 } from '@mui/icons-material';
 import AllShipmentsList from '../components/AllShipmentsList';
+import CarriersList from '../components/CarriersList';
 import type { User } from '../types';
 
 interface AdminPageProps {
@@ -85,6 +87,7 @@ export default function AdminPage({ user, token, onLogout }: AdminPageProps) {
           <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" scrollButtons="auto">
             <Tab icon={<Dashboard />} iconPosition="start" label="Panel" />
             <Tab icon={<LocalShipping />} iconPosition="start" label="Gestión de envíos" />
+            <Tab icon={<DirectionsCar />} iconPosition="start" label="Transportistas" />
           </Tabs>
         </Box>
 
@@ -148,6 +151,9 @@ export default function AdminPage({ user, token, onLogout }: AdminPageProps) {
 
           {/* Tab 1 — Gestión de envíos */}
           {tab === 1 && <AllShipmentsList token={token} />}
+
+          {/* Tab 2 — Transportistas */}
+          {tab === 2 && <CarriersList token={token} />}
         </CardContent>
       </Card>
     </Container>
