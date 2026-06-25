@@ -22,3 +22,11 @@ export interface AssignShipmentPayload {
   carrierId: number;
   routeId: number;
 }
+
+export interface CreateCarrierPayload {
+  name: string;
+  phone: string;
+  vehicleType: 'moto' | 'van' | 'camion';
+  capacityKg: number;
+  capacityM3: number;
+}
